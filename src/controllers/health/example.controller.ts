@@ -5,13 +5,14 @@ class ExampleController {
   constructor() {}
 
   @Get('/example/:id')
-  getExample(id: number) {
+  async getExample(id: number) {
     console.log('example: ', id);
+    /* const resp = await useCase(id); */
     return id;
   }
 
   @Get('/example2/:id')
-  getExample2(id: number) {
+  async getExample2(id: number) {
     console.log('example2: ', id);
     return id;
   }

@@ -18,13 +18,13 @@ export const enum HttpTypes {
   DELETE = 'DELETE',
 }
 
-export interface HttpResponse {
+export interface GenericResponse {
   success: boolean,
   data?: object,
-  error?: HttpError
+  error?: GenericErrorResponse
 }
 
-export interface HttpError {
+export interface GenericErrorResponse {
   code: number,
   message: string
 }

@@ -76,7 +76,7 @@ export function Get(url: string) {
         throw new Error(`Unexpected additional parameters in args: ${additionalParams.join(', ')}`);
       }
 
-      return target.apply(this, ...args);
+      return target.apply(this, args);
     }
 
     return newMethod;

@@ -12,10 +12,10 @@ export interface IController {
 export interface DecoratedController {
   ctrlClassName: string | undefined;
   crtlBasePath?: string;
-  ctrlFunctions: HttpDecoratedFunc[];
+  ctrlFunctions: DecoratedFunc[];
 }
 
-export interface HttpDecoratedFunc {
+export interface DecoratedFunc {
   name: string | symbol;
   type: HttpTypes;
   url: string;

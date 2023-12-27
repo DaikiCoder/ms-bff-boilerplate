@@ -4,10 +4,11 @@ import { Controller, Get } from "../../configs/decorators/http.decorators";
 class HealthController {
   constructor() {}
 
-  @Get('/health/:id')
-  getHealth(id: number) {
-    console.log('health: ', id);
-    return id;
+  @Get('/health')
+  getHealth() {
+    return {
+      status: "I'm alive"
+    };
   }
 }
 

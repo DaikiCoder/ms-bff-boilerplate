@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import express, { Express, Request, Response, Router } from 'express';
-import { DecoratorData } from '../../decorators/types.decorators';
-import { HttpApplication, HttpController, HttpTypes } from '../types.factory';
+import express, { Express, NextFunction, Request, Response, Router } from 'express';
+import { DecoratedFunc, DecoratorData } from '../../decorators/types.decorators';
+import { GenericResponse, HttpApplication, HttpController, HttpTypes } from '../types.factory';
+import { errorHandler } from '../middlewares/error.handler';
 
 class ExpressApplication implements HttpApplication {
   private app: Express;
@@ -11,17 +13,14 @@ class ExpressApplication implements HttpApplication {
     this.app = express();
     this.router = express.Router();
 
-    /* this.router.get('/test/:id', async (req: Request, res: Response) => {
-      console.log('req: ', req.params.dsa);
-      console.log('req: ', req.query);
-      res.send(200);
-    }); */
-
     this.app.use(this.router);
+    this.app.use(express.json());
+    this.app.use(errorHandler());
   }
 
   addCtrls(appCtrl: HttpController, decoratedData: DecoratorData) {
     for (const ctrl of appCtrl.controllers) {
+      const ctrlInst = new ctrl();
       const decoratedCtrl = decoratedData.controllers.find(
         (decoCtrl) => ctrl.name === decoCtrl.ctrlClassName
       );
@@ -29,41 +28,32 @@ class ExpressApplication implements HttpApplication {
         continue;
       }
 
-      console.log('decoCtrl: ', decoratedCtrl);
       for (const decoFuncs of decoratedCtrl.ctrlFunctions) {
-
         if (decoFuncs.type === HttpTypes.GET) {
+          this.router.get(
+            decoFuncs.url,
+            async (req: Request, res: Response, next: NextFunction) => {
+              const genericRes: GenericResponse = { success: true };
+              const params = decoFuncs.paramNames?.map((paramName) => req.params[paramName]) || [];
 
-          this.router.get(decoFuncs.url, async (req: Request, res: Response) => {
-            console.log('req', req.body);
-            const params: any[] = []; // Array para almacenar los valores de los parámetros
+              try {
+                genericRes.data = await ctrlInst[decoFuncs.name](...params);
+                throw new Error('bomb');
 
-            // Validar que los nombres de los parámetros estén presentes en req.params
-            if (!decoFuncs.paramNames?.every((paramName) => paramName in req.params)) {
-              // Enviar un error si los n ombres de los parámetros no coinciden
-              res.status(400).send('Parámetros de solicitud incorrectos');
-              return;
+                res.status(200).json(genericRes);
+              } catch (err: any) {
+                next(err);
+              }
             }
-
-            // Recorrer los nombres de los parámetros y asignarlos desde req.params
-            decoFuncs.paramNames?.forEach((paramName) => {
-              params.push(req.params[paramName]);
-            });
-
-            // Llamar a la función con los parámetros recopilados
-            decoFuncs.func(...params);
-
-            res.sendStatus(200);
-          });
+          );
         }
       }
     }
   }
 
   async listen(port: number) {
-    this.app.listen(port, () => {
-      console.log(`Server Running on port: ${port}`);
-    });
+    await this.app.listen(port);
+    console.log(`Server Running on port: ${port}`);
   }
 }
 
