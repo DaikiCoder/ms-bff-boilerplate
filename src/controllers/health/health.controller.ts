@@ -1,10 +1,10 @@
-import { Controller, Get } from "../../configs/decoratos/http.decoratos";
+import { Controller, Get } from "../../configs/decorators/http.decorators";
 
 @Controller()
 class HealthController {
   constructor() {}
 
-  @Get('path/to/url/:id')
+  @Get('/health/:id')
   getHealth(id: number) {
     console.log('health: ', id);
     return id;

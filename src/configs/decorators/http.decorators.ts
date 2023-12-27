@@ -1,34 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { HttpTypes } from '../http/types.factory';
+import { DecoratedController, HttpDecoratedFunc, DecoratorData, IModule } from './types.decorators';
 
-import { HttpTypes } from '../http/HttpFactory';
-
-interface IController {
-  new (): any;
-}
-
-interface IModule {
-  controller: IController[];
-}
-
-interface DecoratedController {
-  ctrlClassName: string | undefined;
-  crtlBasePath?: string;
-  ctrlFunctions: HttpDecoratedFunc[];
-}
-
-interface HttpDecoratedFunc {
-  name: string | symbol;
-  type: HttpTypes;
-  url: string;
-  func: any;
-  paramNames?: string[];
-}
-
-export interface HttpDecoratorData {
-  controllers: DecoratedController[];
-}
-
-export const httpDecoratedData: HttpDecoratorData = {
+export const httpDecoratedData: DecoratorData = {
   controllers: new Array<DecoratedController>(),
 };
 

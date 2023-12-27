@@ -1,33 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ExpressApplication from './express-app/ExpressApplication';
-import { HttpDecoratorData, httpDecoratedData } from '../decoratos/http.decoratos';
-
-export interface HttpApplication {
-  addCtrls(ctrls: HttpController, httpDecoratorData: HttpDecoratorData): void;
-  listen(port: number): void;
-}
-
-export interface IController {
-  new (): any;
-}
-export interface HttpController {
-  controllers: IController[];
-}
-
-export const enum HttpTypes {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
-}
+import ExpressApplication from './express-app/express.applicaton';
+import { httpDecoratedData } from '../decorators/http.decorators';
+import { HttpController } from './types.factory';
 
 class HttpFactory {
-  static httpInstance: HttpApplication;
 
   static async create(ctrl: new () => object): Promise<ExpressApplication> {
     return new Promise((resolve) => {
       const app = new ExpressApplication();
-      httpInstance = app;
 
       const appCtrl = new ctrl() as HttpController;
       app.addCtrls(appCtrl, httpDecoratedData);
@@ -38,7 +18,6 @@ class HttpFactory {
 }
 
 export default HttpFactory;
-export let { httpInstance } = HttpFactory;
 
 /* const app = new http();
       httpInstance = app; */

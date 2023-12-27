@@ -1,18 +1,18 @@
-import { Controller, Get } from "../../configs/decoratos/http.decoratos";
+import { Controller, Get } from "../../configs/decorators/http.decorators";
 
 @Controller()
 class ExampleController {
   constructor() {}
 
-  @Get('path/to/url/:id')
+  @Get('/example/:id')
   getExample(id: number) {
     console.log('example: ', id);
     return id;
   }
 
-  @Get('path/to/url/:id')
+  @Get('/example2/:id')
   getExample2(id: number) {
-    console.log('example: ', id);
+    console.log('example2: ', id);
     return id;
   }
 }

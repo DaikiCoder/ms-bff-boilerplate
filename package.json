@@ -8,7 +8,10 @@
   "main": "main.tsx",
   "scripts": {
     "tsc": "tsc",
-    "dev": "tsc && node --env-file=.env.development dist/main.js",
+    "watch-tsc": "tsc --watch",
+    "watch-node": "node --watch --env-file=.env.local dist/main.js",
+    "dev": "concurrently \"npm:watch-tsc\" \"npm:watch-node\"",
+    "start": "tsc --build && node --env-file=.env dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -33,6 +36,7 @@
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
     "@typescript-eslint/parser": "^6.13.1",
+    "concurrently": "^8.2.2",
     "eslint": "^8.54.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.1.0",
