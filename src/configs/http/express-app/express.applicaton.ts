@@ -43,7 +43,7 @@ class ExpressApplication implements HttpApplication {
     }
   }
 
-  private createGetRoutes(ctrlInst: any, decoFuncs: any) {
+  private createGetRoutes(ctrlInst: any, decoFuncs: DecoratedFunc) {
     this.router.get(decoFuncs.url, async (req: Request, res: Response, next: NextFunction) => {
       const genericRes: GenericResponse = { success: true };
       const params = decoFuncs.paramNames?.map((paramName: string) => req.params[paramName]) || [];
