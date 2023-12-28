@@ -11,9 +11,10 @@ class ExpressApplication implements HttpApplication {
 
   constructor() {
     this.app = express();
-    this.router = express.Router();
-
+    this.router = express.Router(); 
+    
     this.app.use(this.router);
+
     this.app.use(express.json());
     this.app.use(errorHandler());
   }
@@ -28,27 +29,34 @@ class ExpressApplication implements HttpApplication {
         continue;
       }
 
-      for (const decoFuncs of decoratedCtrl.ctrlFunctions) {
-        if (decoFuncs.type === HttpTypes.GET) {
-          this.router.get(
-            decoFuncs.url,
-            async (req: Request, res: Response, next: NextFunction) => {
-              const genericRes: GenericResponse = { success: true };
-              const params = decoFuncs.paramNames?.map((paramName) => req.params[paramName]) || [];
+      this.registerController(ctrlInst, decoratedCtrl.ctrlFunctions);
+    }
+  }
 
-              try {
-                genericRes.data = await ctrlInst[decoFuncs.name](...params);
-                throw new Error('bomb');
-
-                res.status(200).json(genericRes);
-              } catch (err: any) {
-                next(err);
-              }
-            }
-          );
-        }
+  private registerController(ctrlInst: any, decoratedFuncs: DecoratedFunc[]) {
+    for (const decoFuncs of decoratedFuncs) {
+      switch (decoFuncs.type) {
+        case HttpTypes.GET:
+          this.createGetRoutes(ctrlInst, decoFuncs);
+          break;
       }
     }
+  }
+
+  private createGetRoutes(ctrlInst: any, decoFuncs: any) {
+    this.router.get(decoFuncs.url, async (req: Request, res: Response, next: NextFunction) => {
+      const genericRes: GenericResponse = { success: true };
+      const params = decoFuncs.paramNames?.map((paramName: string) => req.params[paramName]) || [];
+
+      try {
+        genericRes.data = await ctrlInst[decoFuncs.name](...params);
+        // throw new Error('bomb');
+
+        res.status(200).json(genericRes);
+      } catch (err: any) {
+        next(err);
+      }
+    });
   }
 
   async listen(port: number) {
