@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpTypes } from '../http/types.factory';
-import { DecoratedController, HttpDecoratedFunc, DecoratorData, IModule } from './types.decorators';
+import { DecoratedController, DecoratedFunc, DecoratorData, IModule } from './types.decorators';
 
 export const httpDecoratedData: DecoratorData = {
   controllers: new Array<DecoratedController>(),
 };
 
-export const functionList: HttpDecoratedFunc[] = Array<HttpDecoratedFunc>();
+export const functionList: DecoratedFunc[] = Array<DecoratedFunc>();
 
 export function Module(input: IModule) {
   console.log('D_Module input: ', input);
@@ -50,7 +50,7 @@ export function Get(url: string) {
     const paramNames: string[] = getParameterNames(target);
     console.log(`D_Get - paramNames: ${paramNames}`);
 
-    const httpDecoratedFunc: HttpDecoratedFunc = {
+    const httpDecoratedFunc: DecoratedFunc = {
       name: context.name,
       type: HttpTypes.GET,
       url: url,
