@@ -1,5 +1,5 @@
 import { Module } from '../configs/decorators/http.decorators';
-import ExampleController from './health/example.controller';
+import ExampleController from './example/example.controller';
 import HealthController from './health/health.controller';
 
 @Module({
