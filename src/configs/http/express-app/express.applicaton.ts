@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import express, { Express, NextFunction, Request, Response, Router } from 'express';
+import compression from 'compression';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { DecoratedFunc, DecoratorData } from '../../decorators/types.decorators';
 import { GenericResponse, HttpApplication, HttpController, HttpTypes } from '../types.factory';
-import { errorHandler } from '../middlewares/error.handler';
+import { errorHandler } from '../middlewares/error-handler';
+import morganMiddleware from '../middlewares/http-logger';
+import logger from '../../utils/logger';
 
 class ExpressApplication implements HttpApplication {
   private app: Express;
@@ -10,10 +16,25 @@ class ExpressApplication implements HttpApplication {
 
   constructor() {
     this.app = express();
-    this.router = express.Router(); 
+    this.router = express.Router();
 
+    const rateLimitConfig = {
+      windowMs: 15 * 60 * 1000, // 15 min
+      limit: 100,
+      standardHeaders: true,
+      legacyHeaders: false,
+    };
+
+    this.app.use(compression());
+    this.app.use(cors());
+    this.app.use(helmet());
+    this.app.use(morganMiddleware());
+    this.app.use(rateLimit(rateLimitConfig));
+    this.app.disable('x-powered-by');
     this.app.use(express.json());
+
     this.app.use(this.router);
+
     this.app.use(errorHandler());
   }
 
@@ -52,8 +73,9 @@ class ExpressApplication implements HttpApplication {
       try {
         genericRes.data = await ctrlInst[decoFuncs.name](...params);
 
-        if (Math.random() > .5)
-          throw new Error('boom!');
+        logger.info('asd');
+
+        if (Math.random() > 0.5) throw new Error('boom!');
 
         res.status(200).json(genericRes);
       } catch (err: any) {
@@ -69,8 +91,7 @@ class ExpressApplication implements HttpApplication {
       try {
         genericRes.data = await ctrlInst[decoFuncs.name](req.body);
 
-        if (Math.random() > .5)
-          throw new Error('boom!');
+        if (Math.random() > 0.5) throw new Error('boom!');
 
         res.status(200).json(genericRes);
       } catch (err: any) {
