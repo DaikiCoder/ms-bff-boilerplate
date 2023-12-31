@@ -1,4 +1,4 @@
-import { Controller, Get } from "../../configs/decorators/http.decorators";
+import { Controller, Get, Post } from '../../configs/decorators/http.decorators';
 
 @Controller()
 class ExampleController {
@@ -6,15 +6,16 @@ class ExampleController {
 
   @Get('/example/:id')
   async getExample(id: number) {
-    console.log('example: ', id);
-    /* const resp = await useCase(id); */
-    return id;
+    console.log('getExample: ', id);
+    /* const resp = await getUseCase(id); */
+    return { id };
   }
 
-  @Get('/example2/:id')
-  async getExample2(id: number) {
-    console.log('example2: ', id);
-    return id;
+  @Post('/example')
+  async postExample({ id }: { id: number }) {
+    console.log('postExample: ', id);
+    /* const resp = await postUseCase(id); */
+    return { id };
   }
 }
 

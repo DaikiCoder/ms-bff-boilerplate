@@ -19,7 +19,6 @@ export interface DecoratedFunc {
   name: string | symbol;
   type: HttpTypes;
   url: string;
-  func: any;
   paramNames?: string[];
 }
 

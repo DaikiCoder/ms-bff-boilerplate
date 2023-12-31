@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpTypes } from '../http/types.factory';
 import { DecoratedController, DecoratedFunc, DecoratorData, IModule } from './types.decorators';
@@ -6,18 +7,11 @@ export const httpDecoratedData: DecoratorData = {
   controllers: new Array<DecoratedController>(),
 };
 
-export const functionList: DecoratedFunc[] = Array<DecoratedFunc>();
+const functionList: DecoratedFunc[] = Array<DecoratedFunc>();
 
 export function Module(input: IModule) {
-  console.log('D_Module input: ', input);
-  console.log('D_Module controller: ', input.controller);
   return function moduleClass(target: new () => void, _context: ClassDecoratorContext) {
-    console.log('D_Module target: ', target);
-    console.log('D_Module context: ', _context);
-    
-    // const initializedControllers = input.controller.map(controller => new controller());
     target.prototype.controllers = input.controller;
-    /* httpDecoratorData.controllers = input.controller.map((controller) => controller.name); */
   };
 }
 
@@ -54,7 +48,6 @@ export function Get(url: string) {
       name: context.name,
       type: HttpTypes.GET,
       url: url,
-      func: target,
       paramNames: paramNames
     };
 
@@ -83,6 +76,26 @@ export function Get(url: string) {
   };
 }
 
+export function Post(url: string) {  
+  return function postMethod(target: any, context: ClassMethodDecoratorContext) {
+    const httpDecoratedFunc: DecoratedFunc = {
+      name: context.name,
+      type: HttpTypes.POST,
+      url: url,
+    };
+
+    functionList.push(httpDecoratedFunc);
+
+    function newMethod(this: any, ...args: any[]) {
+      console.log('D_Post args: ', args);
+
+      return target.apply(this, args);
+    }
+
+    return newMethod;
+  };
+}
+
 function getParameterNames(func: () => void) {
   const funcStr = func.toString();
   const argNamesMatch = funcStr
@@ -90,6 +103,7 @@ function getParameterNames(func: () => void) {
     .match(/([^\s,]+)/g);
   return argNamesMatch ? argNamesMatch : [];
 }
+
 
 /* export function debugMethod(input: string) {
   return function debugMethod(originalMethod: any, _context: any) {
