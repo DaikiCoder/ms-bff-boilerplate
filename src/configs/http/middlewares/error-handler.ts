@@ -11,11 +11,13 @@ export const errorHandler =
       message: err.message,
     };
 
-    logger.error({
-      msg: err.message,
-      body: req.body,
-    });
-
     res.status(400);
     res.json(genericError);
+
+    logger.error({
+      code: res.statusCode,
+      codeMessage: res.statusMessage,
+      errorMessage: err.message,
+      body: req.body,
+    });
   };

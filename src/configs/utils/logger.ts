@@ -27,21 +27,22 @@ winston.addColors(colors);
 
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-  winston.format.colorize({ all: true }), 
-  winston.format.printf((info) => `${info.timestamp} ${info.level}: ${removeUnicodeAndANSI(info.message)}`)
+  winston.format.colorize({ all: true }),
+  winston.format.printf(
+    (info) => `${info.timestamp} ${info.level}: ${removeUnicodeAndANSI(info.message)}`
+  )
 );
 
 function removeUnicodeAndANSI(msg: string) {
   const message = JSON.stringify(msg);
-  const withoutEscapeUnicode = message.replace(/\\u[\dA-Fa-f]{4}/g, (match) => {
+  const noEscapeUnicode = message.replace(/\\u[\dA-Fa-f]{4}/g, (match) => {
     const charCode = parseInt(match.slice(2), 16);
     return String.fromCharCode(charCode);
   });
-  const withoutEscapeANSI = withoutEscapeUnicode.replace(/\\u001b\[[0-9;]*m/g, '');
-  const withoutQuotesAndNewline = withoutEscapeANSI.replace(/["\\n]/g, '');
+  const noEscapeANSI = noEscapeUnicode.replace(/\\u001b\[[0-9;]*m/g, '');
+  const noQuotesAndNewline = noEscapeANSI.replace(/"|\\n/g, '');
 
-
-  return withoutQuotesAndNewline;
+  return noQuotesAndNewline;
 }
 
 const transports = [new winston.transports.Console()];
