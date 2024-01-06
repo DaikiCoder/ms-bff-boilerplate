@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ZodError, ZodSchema } from 'zod';
 import { HttpTypes } from '../http/types.factory';
 import { DecoratedController, DecoratedFunc, DecoratorData, IModule } from './types.decorators';
 
@@ -17,7 +18,6 @@ export function Module(input: IModule) {
 
 export function Controller(basePath?: string) {
   return function controllerClass(target: new () => void, context: ClassDecoratorContext) {
-
     const decoratedController: DecoratedController = {
       ctrlClassName: context.name,
       crtlBasePath: basePath,
@@ -35,7 +35,7 @@ export function Get(url: string) {
   const paramsRegex = /:(\w+)/g;
   const urlParams: string[] = (url.match(paramsRegex) || []).map((match) => match.substring(1));
   console.log(`D_Get - urlParams: ${urlParams}`);
-  
+
   return function getMethod(target: any, context: ClassMethodDecoratorContext) {
     console.log('D_Get target: ', target.toString());
     console.log('D_Get context: ', context);
@@ -48,14 +48,14 @@ export function Get(url: string) {
       name: context.name,
       type: HttpTypes.GET,
       url: url,
-      paramNames: paramNames
+      paramNames: paramNames,
     };
 
     functionList.push(httpDecoratedFunc);
 
     function newMethod(this: any, ...args: any[]) {
       console.log('D_Get args: ', args);
-      // Validar que todos los urlParams estén presentes en args
+      /* // Validar que todos los urlParams estén presentes en args
       const allParamsPresent = urlParams.every((param) => paramNames.includes(param));
 
       if (!allParamsPresent) {
@@ -67,7 +67,7 @@ export function Get(url: string) {
       if (urlParams.length !== args.length) {
         const additionalParams = paramNames.filter((param) => !urlParams.includes(param));
         throw new Error(`Unexpected additional parameters in args: ${additionalParams.join(', ')}`);
-      }
+      } */
 
       return target.apply(this, args);
     }
@@ -76,7 +76,7 @@ export function Get(url: string) {
   };
 }
 
-export function Post(url: string) {  
+export function Post(url: string) {
   return function postMethod(target: any, context: ClassMethodDecoratorContext) {
     const httpDecoratedFunc: DecoratedFunc = {
       name: context.name,
@@ -96,6 +96,39 @@ export function Post(url: string) {
   };
 }
 
+export function Params() {
+  console.log('D_Params');
+  return function bodyMethod(target: any, context: ClassMethodDecoratorContext) {
+    console.log('D_ParamsMethod');
+    function newMethod(this: any, ...args: any[]) {
+      console.log('D_Params_New', args);
+      return target.apply(this, args);
+    }
+    return newMethod;
+  };
+}
+export function Body<T>(body: string, schema: ZodSchema<T>) {
+  console.log('D_Body');
+  return function bodyMethod(target: any, context: ClassMethodDecoratorContext) {
+    console.log('D_BodyMethod');
+    function newMethod(this: any, ...args: any[]) {
+      console.log('D_Body_New', args);
+      try {
+        schema.parse({});
+      } catch (err) {
+        if (err instanceof ZodError) {
+          throw {
+            message: err.issues,
+          };
+        }
+      }
+
+      return target.apply(this, args);
+    }
+    return newMethod;
+  };
+}
+
 function getParameterNames(func: () => void) {
   const funcStr = func.toString();
   const argNamesMatch = funcStr
@@ -104,6 +137,21 @@ function getParameterNames(func: () => void) {
   return argNamesMatch ? argNamesMatch : [];
 }
 
+/* export function loggedMethod<This, Args extends any[], Return>(
+  target: (this: This, ...args: Args) => Return,
+  context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
+) {
+  const methodName = String(context.name);
+
+  function replacementMethod(this: This, ...args: Args): Return {
+    console.log(`LOG: Entering method '${methodName}'.`);
+    const result = target.call(this, ...args);
+    console.log(`LOG: Exiting method '${methodName}'.`);
+    return result;
+  }
+
+  return replacementMethod;
+} */
 
 /* export function debugMethod(input: string) {
   return function debugMethod(originalMethod: any, _context: any) {

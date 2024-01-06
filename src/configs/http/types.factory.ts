@@ -19,12 +19,12 @@ export const enum HttpTypes {
 }
 
 export interface GenericResponse {
-  success: boolean,
-  data?: object,
-  error?: GenericErrorResponse
+  success: boolean;
+  data?: object;
+  error?: GenericErrorResponse;
 }
 
 export interface GenericErrorResponse {
-  code: number,
-  message: string
+  code: number;
+  message: string | object;
 }

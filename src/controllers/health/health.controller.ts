@@ -1,4 +1,4 @@
-import { Controller, Get } from "../../configs/decorators/http.decorators";
+import { Controller, Get } from '../../configs/decorators/http.decorators';
 
 @Controller()
 class HealthController {
@@ -7,7 +7,7 @@ class HealthController {
   @Get('/health')
   getHealth() {
     return {
-      status: "I'm alive"
+      status: "I'm alive",
     };
   }
 }

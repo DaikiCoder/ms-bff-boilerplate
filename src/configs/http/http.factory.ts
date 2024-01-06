@@ -4,7 +4,6 @@ import { httpDecoratedData } from '../decorators/http.decorators';
 import { HttpController } from './types.factory';
 
 class HttpFactory {
-
   static async create(ctrl: new () => object): Promise<ExpressApplication> {
     return new Promise((resolve) => {
       const app = new ExpressApplication();

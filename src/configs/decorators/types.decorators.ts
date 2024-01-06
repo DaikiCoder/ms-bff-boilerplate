@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HttpTypes } from "../http/types.factory";
+import { HttpTypes } from '../http/types.factory';
 
 export interface IModule {
   controller: any[];
