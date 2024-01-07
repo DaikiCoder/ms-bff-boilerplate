@@ -5,7 +5,7 @@ class HealthController {
   constructor() {}
 
   @Get('/health')
-  getHealth() {
+  async getHealth() {
     return {
       status: "I'm alive",
     };

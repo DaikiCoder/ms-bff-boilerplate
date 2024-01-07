@@ -48,12 +48,14 @@ class ExpressApplication implements HttpApplication {
         continue;
       }
 
-      this.registerController(ctrlInst, decoratedCtrl.ctrlFunctions);
+      this.registerController(ctrl.name, ctrlInst, decoratedCtrl.ctrlFunctions);
     }
   }
 
-  private registerController(ctrlInst: any, decoratedFuncs: DecoratedFunc[]) {
+  private registerController(ctrlName: string, ctrlInst: any, decoratedFuncs: DecoratedFunc[]) {
     for (const decoFuncs of decoratedFuncs) {
+      logger.info(`\x1b[33m[${ctrlName}] \x1b[32m Mapped { ${decoFuncs.url} ${decoFuncs.type} } route`);
+
       switch (decoFuncs.type) {
         case HttpTypes.GET:
           this.createGetRoutes(ctrlInst, decoFuncs);
@@ -89,10 +91,12 @@ class ExpressApplication implements HttpApplication {
       const genericRes: GenericResponse = { success: true };
 
       try {
+        logger.info(`Start ${decoFuncs.name as string}`);
         genericRes.data = await ctrlInst[decoFuncs.name](req.body);
 
         if (Math.random() > 0.5) throw new Error('boom!');
 
+        logger.info(`End   ${decoFuncs.name as string}`);
         res.status(200).json(genericRes);
       } catch (err: any) {
         next(err);
@@ -102,7 +106,7 @@ class ExpressApplication implements HttpApplication {
 
   async listen(port: number) {
     await this.app.listen(port);
-    console.log(`Server Running on port: ${port}`);
+    logger.info(`\x1b[33m[${ExpressApplication.name}] \x1b[32mServer Listening on port: ${port}`);
   }
 }
 
