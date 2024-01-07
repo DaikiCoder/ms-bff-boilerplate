@@ -27,10 +27,14 @@ winston.addColors(colors);
 
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  winston.format((info) => {
+    info.level = info.level.toUpperCase();
+    return info;
+  })(),
   winston.format.colorize({ all: true }),
-  winston.format.printf(
-    (info) => `${info.timestamp} ${info.level}: ${removeUnicodeAndANSI(info.message)}`
-  )
+  winston.format.printf((info) => {
+    return `[${process.pid}] ${info.timestamp} ${info.level}: ${removeUnicodeAndANSI(info.message)}`;
+  })
 );
 
 function removeUnicodeAndANSI(msg: string) {

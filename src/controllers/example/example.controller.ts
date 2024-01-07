@@ -20,10 +20,10 @@ class ExampleController {
   }
 
   // @Params(['id', 'type'])
-  @Body<TExampleBody>('body', ExampleBodySchema)
+  @Body<TExampleBody>('exampleBody', ExampleBodySchema)
   @Get('/example2/:id')
-  async getExampleBody(id: number, body: TExampleBody) {
-    console.log('getExample2: ', id, body);
+  async getExampleBody(id: number, exampleBody: TExampleBody) {
+    console.log('getExample2: ', id, exampleBody);
     /* const resp = await getUseCase(id); */
     return { id };
   }

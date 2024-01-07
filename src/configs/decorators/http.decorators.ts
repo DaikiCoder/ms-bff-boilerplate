@@ -31,18 +31,12 @@ export function Controller(basePath?: string) {
 }
 
 export function Get(url: string) {
-  console.log(`D_Get - url: ${url}`);
   const paramsRegex = /:(\w+)/g;
   const urlParams: string[] = (url.match(paramsRegex) || []).map((match) => match.substring(1));
-  console.log(`D_Get - urlParams: ${urlParams}`);
 
   return function getMethod(target: any, context: ClassMethodDecoratorContext) {
-    console.log('D_Get target: ', target.toString());
-    console.log('D_Get context: ', context);
-
     // Obtener los nombres de los parámetros del método original
     const paramNames: string[] = getParameterNames(target);
-    console.log(`D_Get - paramNames: ${paramNames}`);
 
     const httpDecoratedFunc: DecoratedFunc = {
       name: context.name,
@@ -54,7 +48,6 @@ export function Get(url: string) {
     functionList.push(httpDecoratedFunc);
 
     function newMethod(this: any, ...args: any[]) {
-      console.log('D_Get args: ', args);
       /* // Validar que todos los urlParams estén presentes en args
       const allParamsPresent = urlParams.every((param) => paramNames.includes(param));
 
@@ -85,34 +78,33 @@ export function Post(url: string) {
     };
 
     functionList.push(httpDecoratedFunc);
+  };
+}
 
-    function newMethod(this: any, ...args: any[]) {
-      console.log('D_Post args: ', args);
+export function Put(url: string) {
+  return function postMethod(target: any, context: ClassMethodDecoratorContext) {
+    const httpDecoratedFunc: DecoratedFunc = {
+      name: context.name,
+      type: HttpTypes.PUT,
+      url: url,
+    };
 
-      return target.apply(this, args);
-    }
-
-    return newMethod;
+    functionList.push(httpDecoratedFunc);
   };
 }
 
 export function Params() {
-  console.log('D_Params');
-  return function bodyMethod(target: any, context: ClassMethodDecoratorContext) {
-    console.log('D_ParamsMethod');
+  return function paramsMethod(target: any, context: ClassMethodDecoratorContext) {
     function newMethod(this: any, ...args: any[]) {
-      console.log('D_Params_New', args);
       return target.apply(this, args);
     }
     return newMethod;
   };
 }
+
 export function Body<T>(body: string, schema: ZodSchema<T>) {
-  console.log('D_Body');
   return function bodyMethod(target: any, context: ClassMethodDecoratorContext) {
-    console.log('D_BodyMethod');
     function newMethod(this: any, ...args: any[]) {
-      console.log('D_Body_New', args);
       try {
         schema.parse({});
       } catch (err) {
@@ -122,7 +114,6 @@ export function Body<T>(body: string, schema: ZodSchema<T>) {
           };
         }
       }
-
       return target.apply(this, args);
     }
     return newMethod;
@@ -131,9 +122,7 @@ export function Body<T>(body: string, schema: ZodSchema<T>) {
 
 function getParameterNames(func: () => void) {
   const funcStr = func.toString();
-  const argNamesMatch = funcStr
-    .slice(funcStr.indexOf('(') + 1, funcStr.indexOf(')'))
-    .match(/([^\s,]+)/g);
+  const argNamesMatch = funcStr.slice(funcStr.indexOf('(') + 1, funcStr.indexOf(')')).match(/([^\s,]+)/g);
   return argNamesMatch ? argNamesMatch : [];
 }
 
