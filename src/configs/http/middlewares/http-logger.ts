@@ -9,7 +9,7 @@ const stream: StreamOptions = {
 
 const skip = (_req: Request, res: Response) => {
   const env = NODE_ENV || 'dev';
-  return res.statusCode < 400 && env !== ENV_LIST.DEV;
+  return res.statusCode < 400 && env !== ENV_LIST.DEV && false;
 };
 
 const morganMiddleware = () =>
