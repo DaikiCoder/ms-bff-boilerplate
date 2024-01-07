@@ -29,11 +29,14 @@ const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format((info) => {
     info.level = info.level.toUpperCase();
+    if (info.level !== 'ERROR') {
+      info.level = ` ${info.level}`;
+    }
     return info;
   })(),
   winston.format.colorize({ all: true }),
   winston.format.printf((info) => {
-    return `[${process.pid}] ${info.timestamp} ${info.level}: ${removeUnicodeAndANSI(info.message)}`;
+    return `[${process.pid}] - ${info.timestamp} - ${info.level}: ${removeUnicodeAndANSI(info.message)}`;
   })
 );
 

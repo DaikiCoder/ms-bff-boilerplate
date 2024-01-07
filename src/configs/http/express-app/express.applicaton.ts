@@ -71,12 +71,12 @@ class ExpressApplication implements HttpApplication {
       const params = decoFuncs.paramNames?.map((paramName: string) => req.params[paramName]) || [];
 
       try {
+        logger.info(`Start ${decoFuncs.name as string}`);
         genericRes.data = await ctrlInst[decoFuncs.name](...params);
-
-        logger.info('asd');
 
         if (Math.random() > 0.5) throw new Error('boom!');
 
+        logger.info(`End   ${decoFuncs.name as string}`);
         res.status(200).json(genericRes);
       } catch (err: any) {
         next(err);
