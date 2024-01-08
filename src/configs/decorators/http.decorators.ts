@@ -3,6 +3,7 @@
 import { ZodError, ZodSchema } from 'zod';
 import { HttpTypes } from '../http/types.factory';
 import { DecoratedController, DecoratedFunc, DecoratorData, IModule } from './types.decorators';
+import logger from '../utils/logger';
 
 export const httpDecoratedData: DecoratorData = {
   controllers: new Array<DecoratedController>(),
@@ -71,30 +72,17 @@ export function Get(url: string) {
 
 export function Post(url: string) {
   return function postMethod(target: any, context: ClassMethodDecoratorContext) {
+    const paramNames: string[] = getParameterNames(target);
+
     const httpDecoratedFunc: DecoratedFunc = {
       name: context.name,
       type: HttpTypes.POST,
       url: url,
+      paramNames: paramNames,
     };
 
     functionList.push(httpDecoratedFunc);
-  };
-}
 
-export function Put(url: string) {
-  return function postMethod(target: any, context: ClassMethodDecoratorContext) {
-    const httpDecoratedFunc: DecoratedFunc = {
-      name: context.name,
-      type: HttpTypes.PUT,
-      url: url,
-    };
-
-    functionList.push(httpDecoratedFunc);
-  };
-}
-
-export function Params() {
-  return function paramsMethod(target: any, context: ClassMethodDecoratorContext) {
     function newMethod(this: any, ...args: any[]) {
       return target.apply(this, args);
     }
@@ -102,18 +90,51 @@ export function Params() {
   };
 }
 
+export function Put(url: string) {
+  return function postMethod(target: any, context: ClassMethodDecoratorContext) {
+    const paramNames: string[] = getParameterNames(target);
+
+    const httpDecoratedFunc: DecoratedFunc = {
+      name: context.name,
+      type: HttpTypes.PUT,
+      url: url,
+      paramNames: paramNames,
+    };
+
+    functionList.push(httpDecoratedFunc);
+  };
+}
+
 export function Body<T>(body: string, schema: ZodSchema<T>) {
   return function bodyMethod(target: any, context: ClassMethodDecoratorContext) {
+    const decoFunc = functionList.find((df) => df.name === context.name);
+
+    if (!decoFunc) {
+      logger.error(`@Body decorator must be placed before @Post/@Put decorators.`);
+      logger.error(`Method: ${context.name as string}.`);
+      process.exit(1);
+    }
+    decoFunc.body = body;
+
     function newMethod(this: any, ...args: any[]) {
       try {
-        schema.parse({});
+        schema.parse(args[0]);
       } catch (err) {
         if (err instanceof ZodError) {
           throw {
-            message: err.issues,
+            message: err.errors,
           };
         }
       }
+      return target.apply(this, args);
+    }
+    return newMethod;
+  };
+}
+
+export function Params() {
+  return function paramsMethod(target: any, context: ClassMethodDecoratorContext) {
+    function newMethod(this: any, ...args: any[]) {
       return target.apply(this, args);
     }
     return newMethod;

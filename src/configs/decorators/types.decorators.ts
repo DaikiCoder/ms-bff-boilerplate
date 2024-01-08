@@ -20,6 +20,8 @@ export interface DecoratedFunc {
   type: HttpTypes;
   url: string;
   paramNames?: string[];
+  params?: any;
+  body?: any;
 }
 
 export interface DecoratorData {

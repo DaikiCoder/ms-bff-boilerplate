@@ -21,11 +21,11 @@ class ExampleController {
 
   // @Params(['id', 'type'])
   @Body<TExampleBody>('exampleBody', ExampleBodySchema)
-  @Get('/example2/:id')
-  async getExampleBody(id: number, exampleBody: TExampleBody) {
-    console.log('getExample2: ', id, exampleBody);
+  @Post('/example2/:id')
+  async getExampleBody(exampleBody: TExampleBody) {
+    console.log('post ExampleBody:', exampleBody);
     /* const resp = await getUseCase(id); */
-    return { id };
+    return exampleBody;
   }
 }
 
